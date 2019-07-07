@@ -14,6 +14,7 @@ module Port
     output reg [WORD_WIDTH - 1: 0] data_out,
 
     output empty,
+    output have_data,
     output reg is_writing
 );
 
@@ -22,8 +23,6 @@ reg [LOG_BUFFER_LENGTH - 1: 0] read_ptr = 0;
 reg [LOG_BUFFER_LENGTH - 1: 0] buffered_data_length = 0;
 
 reg [WORD_WIDTH - 1: 0] memory [0: BUFFER_LENGTH - 1];
-
-wire have_data;
 
 reg access_granted = 0;
 
@@ -42,9 +41,9 @@ always @(posedge clk, posedge rst) begin
         is_writing = 0;
     end
     else begin : normal
+        data_out = memory[read_ptr];
         if (access_granted) begin
             if (have_data) begin
-                data_out = memory[read_ptr];
                 read_ptr = read_ptr + 1;
                 buffered_data_length = buffered_data_length - 1;
                 is_writing = 1;  
